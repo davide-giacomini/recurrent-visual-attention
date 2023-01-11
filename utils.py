@@ -9,6 +9,9 @@ from PIL import Image
 
 from sklearn import cluster
 
+# TODO clean time, used for debugging
+import time
+
 
 def denormalize(T, coords):
     return 0.5 * ((coords + 1.0) * T)
@@ -157,6 +160,10 @@ def quantize_tensor(t, b):
     Returns:
         A quantized tensor in floating points between [min{t}, max{t}].
     """
+
+    # TODO clean time, used for debugging
+    # tic = time.time()
+
     T = t.reshape((-1,1))
 
     k_means = cluster.KMeans(n_clusters=b, n_init=4)   # Init is the number of times the KMeans runs
@@ -169,9 +176,10 @@ def quantize_tensor(t, b):
     sampled_T = np.choose(labels, values)
     sampled_T.shape = t.shape
 
-    # NEXT TWO LINES FOR DEBUGGING, they don't work
-    # labels_flattened = (labels.view(-1))
-    # [ print ( labels_flattened[i].item() ) for i in range( labels_flattened.size()[0] ) ]
+    # TODO clean time, used for debugging
+    # toc = time.time()
+    # print()
+    # print("TIME: ", toc-tic)
 
     # `sampled_T` is a numpy array. The function must return a tensor.
     return torch.from_numpy(sampled_T)

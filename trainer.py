@@ -21,6 +21,12 @@ class Trainer:
     config file.
     """
 
+    #TODO to clean counter, used for debugging
+    counter = 0
+    @staticmethod
+    def incrCounter():
+        Trainer.counter+=1
+
     def __init__(self, config, data_loader):
         """
         Construct a new Trainer instance.
@@ -172,6 +178,11 @@ class Trainer:
 
             # evaluate on validation set
             valid_loss, valid_acc = self.validate(epoch)
+
+            #TODO to clean counter, used for debugging
+            print()
+            print(Trainer.counter)
+            Trainer.counter = 0
 
             # # reduce lr if validation loss plateaus
             self.scheduler.step(-valid_acc)

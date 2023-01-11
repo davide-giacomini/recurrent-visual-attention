@@ -6,6 +6,8 @@ from torch.distributions import Normal
 
 from utils import quantize_tensor
 
+# TODO to clean counter, used for debugging
+import trainer
 
 class Retina:
     """A visual retina.
@@ -188,6 +190,9 @@ class GlimpseNetwork(nn.Module):
         if self.quant_bits > 0:
             g_t = quantize_tensor(g_t, self.quant_bits)
 
+            # TODO to clean counter, used for debugging
+            trainer.Trainer.incrCounter()
+
         # NEXT TWO LINES FOR DEBUGGING
         # g_t_flattened = (g_t.view(-1))
         # [ print ( g_t_flattened[i].item() ) for i in range( g_t_flattened.size()[0] ) ]
@@ -246,6 +251,9 @@ class CoreNetwork(nn.Module):
         # quantize h_t
         if self.quant_bits > 0:
             h_t = quantize_tensor(h_t, self.quant_bits)
+
+            # TODO to clean counter, used for debugging
+            trainer.Trainer.incrCounter()
 
         return h_t
 
