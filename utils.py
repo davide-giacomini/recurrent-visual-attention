@@ -170,16 +170,15 @@ def quantize_tensor(t, b):
     T = T.detach().numpy()
     k_means.fit(T) # Computes KMeans clustering
 
-    values = k_means.cluster_centers_.squeeze() # Cluster centers
     labels = k_means.labels_    # Cluster indexes. The position of each index inside `labels` corresponds to the position of the element of T, and the value of each element is the position of the cluster index inside `values`. TODO to explain better
 
-    sampled_T = np.choose(labels, values)
-    sampled_T.shape = t.shape
+    labels.shape = t.shape
+    labels = np.float32(labels)
 
     # TODO clean time, used for debugging
     # toc = time.time()
     # print()
     # print("TIME: ", toc-tic)
 
-    # `sampled_T` is a numpy array. The function must return a tensor.
-    return torch.from_numpy(sampled_T)
+    # `labels` is a numpy array. The function must return a tensor.
+    return torch.from_numpy(labels)
