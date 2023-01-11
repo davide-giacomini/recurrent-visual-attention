@@ -7,6 +7,8 @@ import torch
 
 from PIL import Image
 
+from sklearn import cluster
+
 
 def denormalize(T, coords):
     return 0.5 * ((coords + 1.0) * T)
@@ -155,4 +157,21 @@ def quantize_tensor(t, b):
     Returns:
         A quantized tensor in floating points between [min{t}, max{t}].
     """
-    return (torch.round( ( t / (torch.max(t)-torch.min(t)) ) * (2**b - 1) )) * (torch.max(t)-torch.min(t)) / (2**b-1)
+    T = t.reshape((-1,1))
+
+    k_means = cluster.KMeans(n_clusters=b, n_init=4)   # Init is the number of times the KMeans runs
+    T = T.detach().numpy()
+    k_means.fit(T) # Computes KMeans clustering
+
+    values = k_means.cluster_centers_.squeeze() # Cluster centers
+    labels = k_means.labels_    # Cluster indexes. The position of each index inside `labels` corresponds to the position of the element of T, and the value of each element is the position of the cluster index inside `values`. TODO to explain better
+
+    sampled_T = np.choose(labels, values)
+    sampled_T.shape = t.shape
+
+    # NEXT TWO LINES FOR DEBUGGING, they don't work
+    # labels_flattened = (labels.view(-1))
+    # [ print ( labels_flattened[i].item() ) for i in range( labels_flattened.size()[0] ) ]
+
+    # `sampled_T` is a numpy array. The function must return a tensor.
+    return torch.from_numpy(sampled_T)
