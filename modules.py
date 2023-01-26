@@ -245,21 +245,23 @@ class CoreNetwork(nn.Module):
         self.i2h = nn.Linear(input_size, hidden_size)
         self.h2h = nn.Linear(output_size_ht, hidden_size)
 
-        self.fc1 = nn.Linear(hidden_size, output_size_ht)
+        self.fc1 = nn.Linear(hidden_size, 64)   #TODO 64 is the second hidden size. For now it's hardcoded
+        self.fc2 = nn.Linear(64, output_size_ht)
 
     def forward(self, g_t, h_t_prev):
         h1 = self.i2h(g_t)
         h2 = self.h2h(h_t_prev)
         ht0 = F.relu(h1 + h2)
 
-        ht1 = self.fc1(ht0)
+        ht1 = F.relu(self.fc1(ht0))
+        ht2 = self.fc2(ht1)
 
         # quantize h_t
         if self.quant_bits > 0:
-            h_t = torch.clamp(ht1, min=0.0, max=1.0)
-            h_t = quantize_tensor(h_t, self.quant_bits)
+            h_t = torch.clamp(ht2, min=0.0, max=1.0)
+            h_t = quantize_tensor(ht2, self.quant_bits)
         else:
-            h_t = F.relu(ht1)
+            h_t = F.relu(ht2)
 
         return h_t
 
