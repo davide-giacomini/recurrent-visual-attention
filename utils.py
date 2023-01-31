@@ -164,7 +164,7 @@ def quantize_tensor(t, b, min_t = None, max_t = None):
     if min_t == None:   min_t = torch.min(t)
     if max_t == None:   max_t = torch.max(t)
 
-    return (torch.round( ( (t - min_t) / (max_t-min_t) ) * (2**b - 1) )) * (max_t-min_t) / (2**b-1)
+    return (torch.round( ( (t - min_t) / (max_t-min_t) ) * (2**b - 1) ))
 
 global_phi_max = 1.0
 global_phi_min = 0.0

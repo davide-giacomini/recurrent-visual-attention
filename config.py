@@ -131,7 +131,7 @@ misc_arg.add_argument(
 misc_arg.add_argument(
     "--ckpt_dir",
     type=str,
-    default="./ckpt_1hidden_size_64_newformula",
+    default="./ckpt_1hidden_size_64_newformula_quant10",
     help="Directory in which to save model checkpoints",
 )
 misc_arg.add_argument(
