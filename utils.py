@@ -258,43 +258,49 @@ def search_file(config, current_dir, p_t, h_t, l_t, device, a, b, c):
         h_t (torch.Tensor): The target vector for the `h` component, with shape (64,).
         l_t (torch.Tensor): The target vector for the `l` component, with shape (2,).
     """
-    # Find all the center files in the current directory
-    center_files = [f for f in os.listdir(current_dir) if f.endswith('_center.csv')]
 
-    closest_cluster = (-1, np.inf)
-    for file in center_files: 
-        # Load the data from the csv file into a pandas dataframe
-        df = pd.read_csv(os.path.join(current_dir, file), header=None)
+    while True:
 
-        # Convert the dataframe to a tensor
-        data = torch.tensor(df.values).to(device)  # (1,M) --> inside center.csv I have 1 row only
-        data = data.reshape(-1) # (M,)
-        
-        # Extract the features from the vectors
-        h_arr = data[:64]
-        l_arr = data[64:66]
-        phi_arr = data[66:114]  # (M,)[:48] = (48,)
-        
-        # Calculate the Manhattan distance between the target values and the values in each row for each tensor
-        p_dist = (phi_arr - p_t).abs().sum(dim=-1) # |(48,) - (48,)|.sum(dim=-1) = scalar --> distance from the centroid
-        h_dist = (h_arr - h_t).abs().sum(dim=-1)
-        l_dist = (l_arr - l_t).abs().sum(dim=-1)
+        # Find all the center files in the current directory
+        center_files = [f for f in os.listdir(current_dir) if f.endswith('_center.csv')]
 
-        # Add Gaussian noise to the calculation of the weighted Manhattan distance with mean 0 and standard deviation equal to the noise_coeff
-        p_dist = p_dist + torch.randn(p_dist.shape).to(device) * config.noise_coeff    # scalar + scalar: distance from the centroid
-        h_dist = h_dist + torch.randn(h_dist.shape).to(device) * config.noise_coeff
-        l_dist = l_dist + torch.randn(l_dist.shape).to(device) * config.noise_coeff
+        closest_cluster = (-1, np.inf)
+        for file in center_files: 
+            # Load the data from the csv file into a pandas dataframe
+            df = pd.read_csv(os.path.join(current_dir, file), header=None)
 
-        # Calculate the total difference for each row for each tensor
-        distance = (a*p_dist + b*h_dist + c*l_dist) / (a+b+c)  # all scalars --> weighted distance from the centroid
-        
-        if distance < closest_cluster[1]:
-            closest_cluster = (file.split('_')[0], distance)
+            # Convert the dataframe to a tensor
+            data = torch.tensor(df.values).to(device)  # (1,M) --> inside center.csv I have 1 row only
+            data = data.reshape(-1) # (M,)
+            
+            # Extract the features from the vectors
+            h_arr = data[:64]
+            l_arr = data[64:66]
+            phi_arr = data[66:114]  # (M,)[:48] = (48,)
+            
+            # Calculate the Manhattan distance between the target values and the values in each row for each tensor
+            p_dist = (phi_arr - p_t).abs().sum(dim=-1) # |(48,) - (48,)|.sum(dim=-1) = scalar --> distance from the centroid
+            h_dist = (h_arr - h_t).abs().sum(dim=-1)
+            l_dist = (l_arr - l_t).abs().sum(dim=-1)
 
-    # Una volta che ho trovato il closest_cluster, se c'e' la tabella corrispondente ci entro, altrimenti mi prendo la closest row nel closest cluster
-    closest_cluster_dir = os.path.join(current_dir, closest_cluster[0])
-    if os.path.isdir(closest_cluster_dir):
-        return search_file(config, closest_cluster_dir, p_t, h_t, l_t, device, a, b, c)
+            # Add Gaussian noise to the calculation of the weighted Manhattan distance with mean 0 and standard deviation equal to the noise_coeff
+            p_dist = p_dist + torch.randn(p_dist.shape).to(device) * config.noise_coeff    # scalar + scalar: distance from the centroid
+            h_dist = h_dist + torch.randn(h_dist.shape).to(device) * config.noise_coeff
+            l_dist = l_dist + torch.randn(l_dist.shape).to(device) * config.noise_coeff
+
+            # Calculate the total difference for each row for each tensor
+            distance = (a*p_dist + b*h_dist + c*l_dist) / (a+b+c)  # all scalars --> weighted distance from the centroid
+            
+            if distance < closest_cluster[1]:
+                closest_cluster = (file.split('_')[0], distance)
+
+        # Una volta che ho trovato il closest_cluster, se c'e' la tabella corrispondente ci entro, altrimenti mi prendo la closest row nel closest cluster
+        closest_cluster_dir = os.path.join(current_dir, closest_cluster[0])
+
+        if os.path.isdir(closest_cluster_dir):
+            current_dir = closest_cluster_dir
+        else:
+            break
     
     closest_cluster_filename = str(closest_cluster[0]) + "_cluster.csv"
     return os.path.join(current_dir, closest_cluster_filename)
