@@ -65,7 +65,7 @@ class KMeansManhattan:
 
     def __kmeans_clustering(self, X, K, max_iters):
         # Initialize K cluster centers using K-means++
-        centers = self.__kmeans_plusplus(X, K)
+        centers = X[np.random.choice(X.shape[0], size=K, replace=False)]
 
         # Initialize variables
         N = X.shape[0]
@@ -76,20 +76,52 @@ class KMeansManhattan:
         for i in range(max_iters):
             # Assign each data point to its nearest cluster center, Manhattan distance
             for k in range(K):
-                # Compute distances for each row of X from each center (N,K)
-                distances[:, k] = self.__compute_distances(X, centers[k])
+                # Compute distances for each row of X from each center
+                distances[:, k] = self.__compute_distances(X, centers[k])   # (N,K) --> N data points, K centroids
 
-            labels = np.argmin(distances, axis=1)
+            labels = np.argmin(distances, axis=1)   # (N,K).argmin(dim=-1) = (N,) --> N data points, 1 closest centroid
 
             # Recalculate the centroid of each cluster
+            new_centers = np.empty_like(centers)
             for k in range(K):
-                centers[k] = np.mean(X[labels == k, :], axis=0)
+                # Check if the cluster is empty, by checking if at least 1 data point has the closest centroid == k
+                if not np.any(labels == k):
+                    filled_clusters = []
+
+                    closest_cluster, closest_point = self.__find_closest_cluster(distances, k, filled_clusters, labels)
+                    self.__move_point(closest_cluster, k, closest_point, labels, distances, filled_clusters)
+
+                new_centers[k] = np.mean(X[labels == k, :], axis=0)
 
             # Check if the cluster centers have converged
-            # if np.allclose(centers, new_centers):
-            #     break
+            if np.allclose(centers, new_centers):
+                break
+
+            centers = new_centers
 
         return labels, centers
+    
+    def __move_point(self, old_cluster, new_cluster, closest_point, labels, distances, filled_clusters):
+        labels[closest_point] = new_cluster
+        filled_clusters.append(new_cluster)
+
+        # Check if old cluster is now empty, by checking if at least 1 data point has the closest centroid == old_cluster
+        if not np.any(labels == old_cluster):
+            closest_cluster_to_old_cluster, closest_point_to_old_cluster = self.__find_closest_cluster(distances, old_cluster, filled_clusters, labels)
+            self.__move_point(closest_cluster_to_old_cluster, old_cluster, closest_point_to_old_cluster, labels, distances, filled_clusters)
+
+    def __find_closest_cluster(self, distances, cluster, filled_clusters, labels):
+        # Find the cluster closest to cluster k
+        distances_to_cluster = np.zeros(distances.shape[0]) # (N,) --> I can't modify "distances"
+        distances_to_cluster[:] = distances[:, cluster]    # (N,) --> distances from each point to centroid of cluster
+
+        for filled in filled_clusters:
+            distances_to_cluster[labels == filled] = np.inf # Exclude clusters already visited
+
+        closest_point = np.argmin(distances_to_cluster) # (N,).argmin() --> closest point from centroid of cluster
+        closest_cluster = labels[closest_point]   # Cluster of the closest point, which is the cluster closest to our cluster
+
+        return closest_cluster, closest_point
 
     def __compute_distances(self, X: np.ndarray, t: np.ndarray, a: float = 29.98, b: float = 16.08, c: float = 9.93) -> np.ndarray:
         """
@@ -120,10 +152,10 @@ class KMeansManhattan:
         distances = (a*p_distances + b*h_distances + c*l_distances) / (a+b+c)
 
         return distances
-
+    
 # Define the command line arguments
 parser = argparse.ArgumentParser(description='Read from a CSV file')
-parser.add_argument('filename', type=str, nargs='?', default='training_table_01.csv', help='Path to the CSV file')
+parser.add_argument('filename', type=str, nargs='?', default='training_table_50.csv', help='Path to the CSV file')
 
 # Parse the command line arguments
 args, unparsed = parser.parse_known_args()
@@ -133,7 +165,7 @@ root, extension = os.path.splitext(args.filename)
 base_dir = root + '_clusters'
 os.makedirs(base_dir, exist_ok=True)
 
-K = 4
+K = 32
 
 # Create first level of clusters
 cluster_df = pd.read_csv(args.filename)
@@ -205,17 +237,3 @@ def build_clusters(base_dir, k):
 
 for c in range(K):
     build_clusters(base_dir, c)
-
-
-# Testing
-
-def count_csv_rows(startpath):
-    total_rows = 0
-    for root, dirs, files in os.walk(startpath):
-        for file in files:
-            if file.endswith('.csv'):
-                df = pd.read_csv(os.path.join(root, file))
-                total_rows += len(df)
-    return total_rows
-
-tot_rows = count_csv_rows(base_dir)
