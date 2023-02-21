@@ -174,6 +174,7 @@ X = cluster_df.values
 kmeans = KMeansManhattan(X, K)
 labels, centers, best_sse = kmeans.process()
 
+center_df = pd.DataFrame()
 
 for c in range(centers.shape[0]):
     # Select the rows of X that belong to cluster k
@@ -184,13 +185,15 @@ for c in range(centers.shape[0]):
 
     # Create a Pandas DataFrame for the cluster and center data
     cluster_df = pd.DataFrame(x_cluster)
-    center_df = pd.DataFrame(center_row)
+    center_df = pd.concat([center_df, pd.DataFrame(center_row)])
 
     # Save the cluster and center data to separate CSV files
     cluster_filename = os.path.join(base_dir, f'{c}_cluster.csv')
-    center_filename = os.path.join(base_dir, f'{c}_center.csv')
     cluster_df.to_csv(cluster_filename, index=False, header=False)
-    center_df.to_csv(center_filename, index=False, header=False)
+
+
+centers_filename = os.path.join(base_dir, 'centers.csv')
+center_df.to_csv(centers_filename, index=False, header=False)
 
 
 def build_clusters(base_dir, k):
@@ -213,6 +216,8 @@ def build_clusters(base_dir, k):
     output_dir = os.path.join(base_dir, str(k))
     os.makedirs(output_dir, exist_ok=True)
 
+    center_df = pd.DataFrame()
+
     for c in range(centers.shape[0]):
         # Select the rows of X that belong to cluster k
         x_cluster = X[labels == c]
@@ -222,13 +227,15 @@ def build_clusters(base_dir, k):
 
         # Create a Pandas DataFrame for the cluster and center data
         cluster_df = pd.DataFrame(x_cluster)
-        center_df = pd.DataFrame(center_row)
+        center_df = pd.concat([center_df, pd.DataFrame(center_row)])
 
         # Save the cluster and center data to separate CSV files
         cluster_filename = os.path.join(output_dir, f'{c}_cluster.csv')
-        center_filename = os.path.join(output_dir, f'{c}_center.csv')
         cluster_df.to_csv(cluster_filename, index=False, header=False)
-        center_df.to_csv(center_filename, index=False, header=False)
+
+
+    centers_filename = os.path.join(base_dir, 'centers.csv')
+    center_df.to_csv(centers_filename, index=False, header=False)
 
     for clust_number in range(K):
         build_clusters(output_dir, clust_number)

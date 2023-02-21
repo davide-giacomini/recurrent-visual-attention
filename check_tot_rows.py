@@ -17,16 +17,16 @@ def count_cluster_csv_rows(startpath, K):
                     total_rows += len(df)
 
                     # Append the DataFrame to a file to check
-                    df.to_csv('check_50.csv', index=False, mode='a', header=False)
+                    df.to_csv('check_001.csv', index=False, mode='a', header=False)
 
             print(f"{k} has {total_rows} rows in cluster CSV files.")
 
     return total_rows
 
-tot_rows = count_cluster_csv_rows('training_table_50_clusters', 32)
+tot_rows = count_cluster_csv_rows('training_table_001_clusters', 32)
 
-df_origin = pd.read_csv('training_table_50.csv', header=None)
-df_check = pd.read_csv('check_50.csv', header=None)
+df_origin = pd.read_csv('training_table_001.csv', header=None)
+df_check = pd.read_csv('check_001.csv', header=None)
 
 print(tot_rows)
 print(len(df_origin))
