@@ -2,9 +2,12 @@ import os
 import pandas as pd
 
 
-check_file = 'check_05.csv'
-origin_file = 'training_table_05.csv'
-origin_dir = 'training_table_05_clusters'
+check_file = 'check_100.csv'
+origin_file = 'training_table_100.csv'
+origin_dir = 'training_table_100_clusters'
+
+df_origin = pd.read_csv(origin_file, header=None)
+df_check = pd.DataFrame()
 
 def count_cluster_csv_rows(startpath, K):
     total_rows = 0
@@ -20,17 +23,15 @@ def count_cluster_csv_rows(startpath, K):
                     df = pd.read_csv(os.path.join(startpath, file), header=None)
                     total_rows += len(df)
 
-                    # Append the DataFrame to a file to check
-                    df.to_csv(check_file, index=False, mode='a', header=False)
+                    global df_check
+                    # Append the DataFrame to check
+                    df_check = pd.concat([df_check, df])
 
             print(f"{k} has {total_rows} rows in cluster CSV files.")
 
     return total_rows
 
 tot_rows = count_cluster_csv_rows(origin_dir, 32)
-
-df_origin = pd.read_csv(origin_file, header=None)
-df_check = pd.read_csv(check_file, header=None)
 
 print(tot_rows)
 print(len(df_origin))
