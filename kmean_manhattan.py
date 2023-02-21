@@ -155,20 +155,20 @@ class KMeansManhattan:
     
 # Define the command line arguments
 parser = argparse.ArgumentParser(description='Read from a CSV file')
-parser.add_argument('filename', type=str, nargs='?', default='training_table_50.csv', help='Path to the CSV file')
+parser.add_argument('training_table', type=str, nargs='?', default='training_table_001.csv', help='Path to the CSV file')
 
 # Parse the command line arguments
 args, unparsed = parser.parse_known_args()
 
 # Create the output directory if it does not exist
-root, extension = os.path.splitext(args.filename)
+root, extension = os.path.splitext(args.training_table)
 base_dir = root + '_clusters'
 os.makedirs(base_dir, exist_ok=True)
 
 K = 32
 
 # Create first level of clusters
-cluster_df = pd.read_csv(args.filename, header=None)
+cluster_df = pd.read_csv(args.training_table, header=None)
 
 X = cluster_df.values
 kmeans = KMeansManhattan(X, K)
@@ -233,8 +233,7 @@ def build_clusters(base_dir, k):
         cluster_filename = os.path.join(output_dir, f'{c}_cluster.csv')
         cluster_df.to_csv(cluster_filename, index=False, header=False)
 
-
-    centers_filename = os.path.join(base_dir, 'centers.csv')
+    centers_filename = os.path.join(output_dir, 'centers.csv')
     center_df.to_csv(centers_filename, index=False, header=False)
 
     for clust_number in range(K):
