@@ -123,7 +123,7 @@ class KMeansManhattan:
 
         return closest_cluster, closest_point
 
-    def __compute_distances(self, X: np.ndarray, t: np.ndarray, a: float = 29.98, b: float = 16.08, c: float = 9.93) -> np.ndarray:
+    def __compute_distances(self, X: np.ndarray, t: np.ndarray, a: float = 100.0, b: float = 37.38, c: float = 95.59) -> np.ndarray:
         """
         Compute weighted Manhattan distances between the vectors in X and the target vector t.
         
