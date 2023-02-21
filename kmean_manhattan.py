@@ -204,7 +204,7 @@ def build_clusters(base_dir, k):
 
     cluster_df = pd.read_csv(cluster_path, header=None)
 
-    if len(cluster_df) <= K:
+    if len(cluster_df) < K*K:
         return
 
     # Perform clustering
