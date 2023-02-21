@@ -12,16 +12,16 @@ def count_cluster_csv_rows(startpath, K):
         else:
             # if k subdirectory doesn't exist, count rows in k_cluster.csv files
             for file in os.listdir(startpath):
-                if file.endswith(f'{k}_cluster.csv'):
+                if file == f'{k}_cluster.csv':
                     df = pd.read_csv(os.path.join(startpath, file))
                     total_rows += len(df)+1
             print(f"{k} has {total_rows} rows in cluster CSV files.")
 
     return total_rows
 
-tot_rows = count_cluster_csv_rows('training_table_01_clusters', 4)
+tot_rows = count_cluster_csv_rows('training_table_50_clusters', 32)
 
-df = pd.read_csv('training_table_01.csv')
+df = pd.read_csv('training_table_50.csv', header=None)
 
 print(tot_rows)
 print(len(df))

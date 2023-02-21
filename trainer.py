@@ -15,7 +15,7 @@ from tensorboard_logger import configure, log_value
 
 from model import RecurrentAttention
 from modules import Retina
-from utils import AverageMeter, RetinaBasedMemoryInference, closest_result, silent_file_remove
+from utils import AverageMeter, RetinaBasedMemoryInference, compute_closest_outputs, silent_file_remove
 
 from utils import denormalize
 
@@ -585,6 +585,9 @@ class Trainer:
 
         # load the best checkpoint
         self.load_checkpoint(best=self.best)
+        
+        root, ext = os.path.splitext(self.config.training_table)
+        starting_cluster_dir = root + "_clusters"
 
         for i, (x, y) in enumerate(self.test_loader):
             x, y = x.to(self.device), y.to(self.device)
@@ -601,13 +604,13 @@ class Trainer:
             phi = retina.foveate(x, l_t)
             
             for t in range(self.num_glimpses - 1):
-                closest_outputs = closest_result(self.config, phi, h_t, l_t, self.device, a, b, c)
+                closest_outputs = compute_closest_outputs(self.config, starting_cluster_dir, phi, h_t, l_t, self.device, a, b, c)   # (B,M-114)
 
                 h_t = closest_outputs[:, :64]
                 l_t = closest_outputs[:, 64:66].long()
                 phi = retina.foveate(x, l_t)
 
-            closest_outputs = closest_result(self.config, phi, h_t, l_t, self.device, a, b, c)
+            closest_outputs = compute_closest_outputs(self.config, starting_cluster_dir, phi, h_t, l_t, self.device, a, b, c)   # (B,M-114)
 
             pred = closest_outputs[:, 66]
             

@@ -52,7 +52,7 @@ def main(config):
     # or load a pretrained model and test
     elif config.is_train_table:
         trainer.prepare_training_table()
-    elif config.mem_based_inference:
+    elif config.mem_based_inference:    
         if config.bo:
             trainer.BO()
         else:

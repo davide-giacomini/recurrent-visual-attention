@@ -168,7 +168,7 @@ os.makedirs(base_dir, exist_ok=True)
 K = 32
 
 # Create first level of clusters
-cluster_df = pd.read_csv(args.filename)
+cluster_df = pd.read_csv(args.filename, header=None)
 
 X = cluster_df.values
 kmeans = KMeansManhattan(X, K)
@@ -199,7 +199,7 @@ def build_clusters(base_dir, k):
     if not os.path.exists(cluster_path):
         return
 
-    cluster_df = pd.read_csv(cluster_path)
+    cluster_df = pd.read_csv(cluster_path, header=None)
 
     if len(cluster_df) <= K:
         return
