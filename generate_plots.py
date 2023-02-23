@@ -105,7 +105,7 @@ def generate_plot_num_axis(df, start_row, end_row, col, x_label, x_ticks, plt_ti
 
     parts[0] = "graph"    # Modify the desired part
     parts.append(col)
-    graph_name = '-'.join(parts[:]) + '.jpg'  # create new filename with new extension
+    graph_name = '-'.join(parts[:]) + '.png'  # create new filename with new extension
 
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
@@ -154,7 +154,7 @@ def generate_plot_string_axis(df, start_row, end_row, col, x_label, plt_title):
 
     parts[0] = "graph"    # Modify the desired part
     parts.append(col)
-    graph_name = '-'.join(parts[:]) + '.jpg'  # create new filename with new extension
+    graph_name = '-'.join(parts[:]) + '.png'  # create new filename with new extension
 
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
@@ -253,7 +253,7 @@ def generate_plot_hidden_quant(df, col, x_label, x_ticks, plt_title):
 
     parts[0] = "graph"    # Modify the desired part
     parts.append(col)
-    graph_name = '-'.join(parts[:]) + '.jpg'  # create new filename with new extension
+    graph_name = '-'.join(parts[:]) + '.png'  # create new filename with new extension
 
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
