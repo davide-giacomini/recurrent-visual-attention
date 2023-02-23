@@ -576,7 +576,7 @@ class Trainer:
             )
         )
     
-    def memory_based_inference(self, a=100.0, b=37.38, c=95.59):
+    def memory_based_inference(self, a=1.0, b=1.0, c=1.0):
         """Memory-based inference.
 
         The default weights are for 50% of the data. TODO: make them general, and maybe better if taken from a saved csv table
@@ -595,7 +595,7 @@ class Trainer:
             # duplicate M times
             x = x.repeat(self.M, 1, 1, 1)
 
-            retina = RetinaBasedMemoryInference(self.patch_size, self.num_patches, self.glimpse_scale)
+            retina = RetinaBasedMemoryInference(self.patch_size, self.num_patches, self.glimpse_scale, self.quant_bits_phi, self.config, self.model_name)
 
             # initialize location vector and hidden state
             self.batch_size = x.shape[0]
