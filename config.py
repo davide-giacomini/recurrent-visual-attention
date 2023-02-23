@@ -181,6 +181,15 @@ train_arg.add_argument(
 train_arg.add_argument(
     "--clustering", type=str2bool, default=False, help="Use the clustering tree"
 )
+train_arg.add_argument(
+    "--a", type=float, default=1.0, help="Weight a of distance metric"
+)
+train_arg.add_argument(
+    "--b", type=float, default=1.0, help="Weight b of distance metric"
+)
+train_arg.add_argument(
+    "--c", type=float, default=1.0, help="Weight c of distance metric"
+)
 
 # add noise to the memory-based inference to emulate hardware behaviour
 train_arg.add_argument(

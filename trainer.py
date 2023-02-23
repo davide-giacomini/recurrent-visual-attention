@@ -576,7 +576,7 @@ class Trainer:
             )
         )
     
-    def memory_based_inference(self, a=1.0, b=1.0, c=1.0):
+    def memory_based_inference(self, a, b, c):
         """Memory-based inference.
 
         The default weights are for 50% of the data. TODO: make them general, and maybe better if taken from a saved csv table

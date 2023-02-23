@@ -56,7 +56,7 @@ def main(config):
         if config.bo:
             trainer.BO()
         else:
-            trainer.memory_based_inference()
+            trainer.memory_based_inference(a=config.a, b=config.b, c=config.c)
     else:
         import time
         start_test = time.time()
