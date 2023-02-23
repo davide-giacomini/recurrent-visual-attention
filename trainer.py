@@ -15,7 +15,7 @@ from tensorboard_logger import configure, log_value
 
 from model import RecurrentAttention
 from modules import Retina
-from utils import AverageMeter, RetinaBasedMemoryInference, compute_closest_outputs, silent_file_remove
+from utils import AverageMeter, RetinaBasedMemoryInference, closest_outputs_clustering, compute_closest_outputs, silent_file_remove
 
 from utils import denormalize
 

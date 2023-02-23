@@ -182,6 +182,50 @@ def silent_file_remove(filename):
             raise # re-raise exception if a different error occurred
 
 def compute_closest_outputs(config, starting_dir, p_t, h_t, l_t, device, a, b, c):
+    if config.clustering:
+        return closest_outputs_clustering(config, starting_dir, p_t, h_t, l_t, device, a, b, c)
+    else:
+        return closest_outputs_no_clustering(config, p_t, h_t, l_t, device, a, b, c)
+
+def closest_outputs_no_clustering(config, p_t: torch.Tensor, h_t: torch.Tensor, l_t: torch.Tensor, device, a: float, b: float, c: float) -> torch.Tensor:
+    # Check if the weights for the Euclidean distance make sense
+    if a+b+c <= 0:
+        print("Error: The weights a, b, and c must sum up to a number greater than zero")
+        sys.exit(1)
+
+    # Load the data from the csv file into a pandas dataframe
+    df = pd.read_csv(config.training_table)
+    
+    # Convert the dataframe to a tensor
+    data = torch.tensor(df.values, dtype=torch.float32).to(device)
+    
+    # Extract the first three tensors for each row into separate tensors
+    h_arr = data[:, :64]
+    l_arr = data[:, 64:66]
+    phi_arr = data[:, 66:114]
+    
+    # Calculate the Manhattan distance between the target values and the values in each row for each tensor
+    p_diff = (p_t.unsqueeze(1) - phi_arr.unsqueeze(0)).abs().sum(dim=-1)
+    h_diff = (h_t.unsqueeze(1) - h_arr.unsqueeze(0)).abs().sum(dim=-1)
+    l_diff = (l_t.unsqueeze(1) - l_arr.unsqueeze(0)).abs().sum(dim=-1)
+
+    # Add Gaussian noise to the calculation of the weighted Manhattan distance with mean 0 and standard deviation equal to the noise_coeff
+    p_diff = p_diff + torch.randn(p_diff.shape).to(device) * config.noise_coeff
+    h_diff = h_diff + torch.randn(h_diff.shape).to(device) * config.noise_coeff
+    l_diff = l_diff + torch.randn(l_diff.shape).to(device) * config.noise_coeff
+
+    # Calculate the total difference for each row for each tensor
+    diff = (a*p_diff + b*h_diff + c*l_diff) / (a+b+c)
+    
+    # Find the index of the row with the minimum difference for each tensor
+    min_index = diff.argmin(dim=-1)
+    
+    # Create a tensor with the 3 outputs of the closest row (`ht1`, `lt1`, and `a` if present)
+    closest_outputs = data[min_index, 114:]
+    
+    return closest_outputs  # (B,M-114)
+
+def closest_outputs_clustering(config, starting_dir, p_t, h_t, l_t, device, a, b, c):
     """
     Args:
         config (object): The configuration object with the path to the CSV file.
@@ -197,7 +241,7 @@ def compute_closest_outputs(config, starting_dir, p_t, h_t, l_t, device, a, b, c
         closest_output = _closest_output(closest_file_path, config, p_t[sample], h_t[sample], l_t[sample], device, a, b, c)  # (M-114,)
         closest_outputs = torch.vstack((closest_outputs, closest_output))  # (B,M-114)
 
-    return closest_outputs
+    return closest_outputs  # (B,M-114)
 
 def _closest_output(path, config, p_t: torch.Tensor, h_t: torch.Tensor, l_t: torch.Tensor, device, a: float, b: float, c: float) -> torch.Tensor:
     """

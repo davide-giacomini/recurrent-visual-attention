@@ -178,6 +178,9 @@ misc_arg.add_argument(
 train_arg.add_argument(
     "--bo", type=str2bool, default=False, help="Apply BO to memory based inference"
 )
+train_arg.add_argument(
+    "--clustering", type=str2bool, default=False, help="Use the clustering tree"
+)
 
 # add noise to the memory-based inference to emulate hardware behaviour
 train_arg.add_argument(
