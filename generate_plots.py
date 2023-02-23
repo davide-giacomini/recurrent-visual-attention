@@ -105,7 +105,7 @@ def generate_plot_num_axis(df, start_row, end_row, col, x_label, x_ticks, plt_ti
 
     parts[0] = "graph"    # Modify the desired part
     parts.append(col)
-    graph_name = '-'.join(parts[:]) + '.pdf'  # create new filename with new extension
+    graph_name = '-'.join(parts[:]) + '.jpg'  # create new filename with new extension
 
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
@@ -154,7 +154,7 @@ def generate_plot_string_axis(df, start_row, end_row, col, x_label, plt_title):
 
     parts[0] = "graph"    # Modify the desired part
     parts.append(col)
-    graph_name = '-'.join(parts[:]) + '.pdf'  # create new filename with new extension
+    graph_name = '-'.join(parts[:]) + '.jpg'  # create new filename with new extension
 
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
@@ -173,7 +173,7 @@ plt = generate_plot_num_axis(df=df,
                     x_label='size ht',
                     x_ticks=list(range(16,129,16)), 
                     plt_title='Comparison of accuracy for different size_ht values')
-plt.show()
+# plt.show()
 plt.clf()
 
 plt = generate_plot_num_axis(df=df, 
@@ -183,7 +183,7 @@ plt = generate_plot_num_axis(df=df,
                             x_label='num glimpses', 
                             x_ticks=[5,10,15,20], 
                             plt_title='Comparison of accuracy for different num glimpses values')
-plt.show()
+# plt.show()
 plt.clf()
 
 plt = generate_plot_string_axis(df=df, 
@@ -192,7 +192,7 @@ plt = generate_plot_string_axis(df=df,
                                 col='patch_size', 
                                 x_label='patch size', 
                                 plt_title='Comparison of accuracy for different patch size values')
-plt.show()
+# plt.show()
 plt.clf()
 
 plt = generate_plot_num_axis(df=df, 
@@ -202,7 +202,7 @@ plt = generate_plot_num_axis(df=df,
                             x_label='glimpse scale', 
                             x_ticks=[2,3,4,5], 
                             plt_title='Comparison of accuracy for different glimpse scale values')
-plt.show()
+# plt.show()
 plt.clf()
 
 plt = generate_plot_num_axis(df=df, 
@@ -212,7 +212,7 @@ plt = generate_plot_num_axis(df=df,
                     x_label='num patches', 
                     x_ticks=[2,3,4], 
                     plt_title='Comparison of accuracy for different patches number values')
-plt.show()
+# plt.show()
 plt.clf()
 
 plt = generate_plot_num_axis(df=df, 
@@ -222,7 +222,7 @@ plt = generate_plot_num_axis(df=df,
                     x_label='patch quantization', 
                     x_ticks=[1,2,3,4,5,6,7,8], 
                     plt_title='Comparison of accuracy for different patch quantization values')
-plt.show()
+# plt.show()
 plt.clf()
 
 def generate_plot_hidden_quant(df, col, x_label, x_ticks, plt_title):
@@ -253,7 +253,7 @@ def generate_plot_hidden_quant(df, col, x_label, x_ticks, plt_title):
 
     parts[0] = "graph"    # Modify the desired part
     parts.append(col)
-    graph_name = '-'.join(parts[:]) + '.pdf'  # create new filename with new extension
+    graph_name = '-'.join(parts[:]) + '.jpg'  # create new filename with new extension
 
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
@@ -269,5 +269,5 @@ plt = generate_plot_hidden_quant(df=df,
                                  plt_title='Comparison of accuracy for different hidden vector quant values'
                                  )
                                  
-plt.show()
+# plt.show()
 plt.clf()
