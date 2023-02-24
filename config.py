@@ -50,6 +50,9 @@ reinforce_arg.add_argument(
 reinforce_arg.add_argument(
     "--M", type=int, default=1, help="Monte Carlo sampling for valid and test sets"
 )
+reinforce_arg.add_argument(
+    "--added_core_layers", type=int, default=0, help="Layers added to the original core network"
+)
 
 
 # data params

@@ -93,10 +93,11 @@ class Trainer:
         self.quant_bits_h_t = config.num_bits_h_t
         self.quant_bits_phi = config.num_bits_phi
         self.quant_bits_lt = config.num_bits_lt
+        self.layers_added = config.added_core_layers
         self.load_ckpt = config.load_ckpt
 
         if config.is_train or self.load_ckpt == "":
-            self.model_name = "ram_{}_{}x{}_{}_{}_{}_{}_{}_{}_{}".format(
+            self.model_name = "ram_{}_{}x{}_{}_{}_{}_{}_{}_{}_{}_{}".format(
                 config.num_glimpses,
                 config.patch_size,
                 config.patch_size,
@@ -106,7 +107,8 @@ class Trainer:
                 config.num_bits_h_t,
                 config.num_bits_phi,
                 config.num_bits_lt,
-                config.output_size_ht
+                config.output_size_ht,
+                config.added_core_layers
             )
         else:
             self.model_name = "ram_{}".format(
@@ -142,7 +144,8 @@ class Trainer:
             self.quant_bits_phi,
             self.quant_bits_lt,
             self.config,
-            self.model_name
+            self.model_name,
+            self.layers_added
         )
         self.model.to(self.device)
 

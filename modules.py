@@ -1,5 +1,7 @@
+import math
 import os
 import re
+import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -246,33 +248,55 @@ class CoreNetwork(nn.Module):
             state vector for the current timestep `t`.
     """
 
-    def __init__(self, input_size, hidden_size, output_size_ht, quant_bits):
+    def __init__(self, input_size, hidden_size, output_size_ht, quant_bits, layers_added):
         super().__init__()
 
         self.quant_bits = quant_bits
 
+        self.layers_added = layers_added
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.output_size_ht = output_size_ht
 
-        self.i2h = nn.Linear(input_size, hidden_size)
-        self.h2h = nn.Linear(output_size_ht, hidden_size)
-
-        self.fc1 = nn.Linear(hidden_size, output_size_ht)
+        if self.layers_added == 0:
+            self.i2h = nn.Linear(input_size, output_size_ht)
+            self.h2h = nn.Linear(output_size_ht, output_size_ht)
+        elif self.layers_added == 1:
+            self.i2h = nn.Linear(input_size, hidden_size)
+            self.h2h = nn.Linear(output_size_ht, hidden_size)
+            self.fc1 = nn.Linear(hidden_size, output_size_ht)
+        elif self.layers_added == 2:
+            self.i2h = nn.Linear(input_size, hidden_size)
+            self.h2h = nn.Linear(output_size_ht, hidden_size)
+            self.fc1 = nn.Linear(hidden_size, hidden_size/2)
+            self.fc2 = nn.Linear(hidden_size/2, output_size_ht)
+        else:
+            print("Error, layers added can be only 0,1 or 2")
+            sys.exit(-1)
 
     def forward(self, g_t, h_t_prev):
+
         h1 = self.i2h(g_t)
         h2 = self.h2h(h_t_prev)
-        ht0 = F.relu(h1 + h2)
+        
+        if self.layers_added == 0:
+            ht_out = F.relu(h1 + h2)
 
-        ht1 = self.fc1(ht0)
+        elif self.layers_added ==1:
+            ht0 = F.relu(h1 + h2)
+            ht_out = self.fc1(ht0)
 
+        elif self.layers_added == 2:
+            ht0 = F.relu(h1 + h2)
+            ht1 = F.relu(self.fc1(ht0))
+            ht_out = self.fc2(ht1)
+        
         # quantize h_t
         if self.quant_bits > 0:
-            h_t = torch.clamp(ht1, min=0.0, max=1.0)
+            h_t = torch.clamp(ht_out, min=0.0, max=1.0)
             h_t = quantize_tensor(h_t, self.quant_bits, min_t=0.0, max_t=1.0)
         else:
-            h_t = F.relu(ht1)
+            h_t = F.relu(ht_out)
 
         return h_t
 
