@@ -293,7 +293,7 @@ class CoreNetwork(nn.Module):
         
         # quantize h_t
         if self.quant_bits > 0:
-            h_t = torch.clamp(ht_out, min=0.0, max=1.0)
+            h_t = torch.clamp(ht_out, min=0.0, max=1.0) # This is equal to `Relu1(ht_out)`
             h_t = quantize_tensor(h_t, self.quant_bits, min_t=0.0, max_t=1.0)
         else:
             h_t = F.relu(ht_out)

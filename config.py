@@ -17,13 +17,13 @@ def add_argument_group(name):
 # glimpse network params
 glimpse_arg = add_argument_group("Glimpse Network Params")
 glimpse_arg.add_argument(
-    "--patch_size", type=int, default=8, help="size of extracted patch at highest res"
+    "--patch_size", type=int, default=4, help="size of extracted patch at highest res"
 )
 glimpse_arg.add_argument(
-    "--glimpse_scale", type=int, default=1, help="scale of successive patches -- each patch has size `glimpse_scale` times the size of the previous pat"
+    "--glimpse_scale", type=int, default=4, help="scale of successive patches -- each patch has size `glimpse_scale` times the size of the previous pat"
 )
 glimpse_arg.add_argument(
-    "--num_patches", type=int, default=1, help="# of downscaled patches per glimpse"
+    "--num_patches", type=int, default=3, help="# of downscaled patches per glimpse"
 )
 glimpse_arg.add_argument(
     "--loc_hidden", type=int, default=128, help="hidden size of loc fc"
@@ -36,7 +36,7 @@ glimpse_arg.add_argument(
 # core network params
 core_arg = add_argument_group("Core Network Params")
 core_arg.add_argument(
-    "--num_glimpses", type=int, default=6, help="# of glimpses, i.e. BPTT iterations"
+    "--num_glimpses", type=int, default=5, help="# of glimpses, i.e. BPTT iterations"
 )
 core_arg.add_argument("--hidden_size", type=int, default=256, help="hidden size of rnn")
 core_arg.add_argument("--output_size_ht", type=int, default=64, help="output size of rnn")
@@ -51,7 +51,7 @@ reinforce_arg.add_argument(
     "--M", type=int, default=1, help="Monte Carlo sampling for valid and test sets"
 )
 reinforce_arg.add_argument(
-    "--added_core_layers", type=int, default=0, help="Layers added to the original core network"
+    "--added_core_layers", type=int, default=1, help="Layers added to the original core network"
 )
 
 
@@ -137,7 +137,7 @@ misc_arg.add_argument(
 misc_arg.add_argument(
     "--ckpt_dir",
     type=str,
-    default="./ckpt_1hidden_linear_quantization",
+    default="./ckpt_baseline",
     help="Directory in which to save model checkpoints",
 )
 misc_arg.add_argument(
@@ -210,7 +210,7 @@ misc_arg.add_argument(
     "--num_bits_h_t", type=int, default=0, help="Number of bits for quantized for h_t. Zero or less means not quantized"
 )
 misc_arg.add_argument(
-    "--num_bits_phi", type=int, default=0, help="Number of bits for quantized for phi. Zero or less means not quantized"
+    "--num_bits_phi", type=int, default=2, help="Number of bits for quantized for phi. Zero or less means not quantized"
 )
 misc_arg.add_argument(
     "--num_bits_lt", type=int, default=0, help="Number of bits for quantized for lt. Zero or less means not quantized" #FIXME this is NOT the quantization of lt. This is the quantization of l_out. lt is not quantized
