@@ -84,11 +84,11 @@ class Retina:
         """
         B, C, H, W = x.shape
 
-        start = denormalize(H, l)  #TODO provare a renderlo simmetrico e vediamo se funziona....
+        start = denormalize(H, l)
         end = start + size
 
         # pad with zeros
-        x = F.pad(x, (size // 2, size // 2, size // 2, size // 2))
+        x = F.pad(x, (math.ceil(size/2), math.ceil(size/2), math.ceil(size/2), math.ceil(size/2)))
 
         # loop through mini-batch and extract patches
         patch = []  # list of B patch tensors SIXExSIZE pixels
