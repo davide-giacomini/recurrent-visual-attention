@@ -120,3 +120,4 @@ training_table_*.csv
 plot_prova.py
 ckpt_*/*_training_table.csv
 training_table_*
+RAM_accuracy*.csv
