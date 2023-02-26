@@ -29,6 +29,14 @@ class RAMDataLoader:
             # load dataset
             self.dataset_train = datasets.CIFAR10(data_dir, train=True, download=True, transform=trans)
             self.dataset_test = datasets.CIFAR10(data_dir, train=False, download=True, transform=trans)
+        elif self.chosen_dataset=="FashionMNIST":
+            # define transforms
+            normalize = transforms.Normalize((0.5,), (0.5,))
+            trans = transforms.Compose([transforms.ToTensor(), normalize])
+
+            # load dataset
+            self.dataset_train = datasets.FashionMNIST(data_dir, train=True, download=True, transform=trans)
+            self.dataset_test = datasets.FashionMNIST(data_dir, train=False, download=True, transform=trans)
         else:
             print("This network is not thought for dataset ", chosen_dataset)
             sys.exit(-1)

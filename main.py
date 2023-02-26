@@ -23,25 +23,27 @@ def main(config):
         torch.cuda.manual_seed(config.random_seed)
         kwargs = {"num_workers": 1, "pin_memory": True}
 
+    ram_data_loader = data_loader.RAMDataLoader(config.dataset, config.data_dir)
+
     # instantiate data loaders
     if config.is_train:
-        dloader = data_loader.get_train_valid_loader(
-            config.data_dir,
-            config.batch_size,
-            config.random_seed,
-            config.valid_size,
-            config.shuffle,
-            config.show_sample,
-            config.dataset,
+        dloader = ram_data_loader.get_train_valid_loader(
+            batch_size=config.batch_size,
+            random_seed=config.random_seed,
+            valid_size=config.valid_size,
+            shuffle=config.shuffle,
+            show_sample=config.show_sample,
             **kwargs,
         )
     elif config.is_train_table:
-        dloader = data_loader.get_train_table_loader(
-            config.data_dir, config.batch_size, **kwargs,
+        dloader = ram_data_loader.get_train_table_loader(
+            batch_size=config.batch_size,
+            **kwargs,
         )
     else:
-        dloader = data_loader.get_test_loader(
-            config.data_dir, config.batch_size, **kwargs,
+        dloader = ram_data_loader.get_test_loader(
+            batch_size=config.batch_size,
+            **kwargs,
         )
 
     trainer = Trainer(config, dloader)

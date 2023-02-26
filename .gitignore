@@ -2,6 +2,7 @@
 *.mp4
 MNIST/
 data/cifar*
+data/FashionMNIST*
 logs/
 ckpt/
 .DS_Store
