@@ -32,6 +32,7 @@ def main(config):
             config.valid_size,
             config.shuffle,
             config.show_sample,
+            config.dataset,
             **kwargs,
         )
     elif config.is_train_table:

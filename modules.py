@@ -68,7 +68,7 @@ class Retina:
 
         # concatenate into a single tensor and flatten
         phi = torch.cat(phi, 1)
-        phi = phi.view(phi.shape[0], -1)    #phi becomes a tensor of B batches with size*size elements
+        phi = phi.view(phi.shape[0], -1)    #phi becomes a tensor of B batches with channels*size*size elements
 
         return phi
 
@@ -165,7 +165,7 @@ class GlimpseNetwork(nn.Module):
         self.retina = Retina(g, k, s)
 
         # glimpse layer
-        D_in = k * g * g * c    # Input dimension of first fc1: it's the one that in the paper corresponds to theta_g_0. This fc just takes as input a vector of patches, hence its dimension is k*g*g (c=1 always). i.e., num_patches*patch_size*patch_size
+        D_in = k * g * g * c    # Input dimension of first fc1: it's the one that in the paper corresponds to theta_g_0. This fc just takes as input a vector of patches, hence its dimension is k*g*g*c (c=1 for MNIST). i.e., num_patches*patch_size*patch_size*channels
         self.fc1 = nn.Linear(D_in, h_g) # --glimpse_hidden
 
         # location layer

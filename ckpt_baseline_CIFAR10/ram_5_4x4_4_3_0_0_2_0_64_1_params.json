@@ -10,6 +10,7 @@
     "ckpt_dir": "./ckpt_baseline",
     "clustering": false,
     "data_dir": "./data",
+    "dataset": "CIFAR10",
     "epochs": 200,
     "glimpse_hidden": 128,
     "glimpse_scale": 4,
@@ -42,7 +43,7 @@
     "std": 0.05,
     "train_patience": 50,
     "training_table": "training_table.csv",
-    "use_gpu": true,
+    "use_gpu": false,
     "use_tensorboard": false,
     "valid_size": 0.1
 }

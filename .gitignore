@@ -1,6 +1,7 @@
 *.p
 *.mp4
 MNIST/
+data/cifar*
 logs/
 ckpt/
 .DS_Store
@@ -120,4 +121,5 @@ training_table_*.csv
 plot_prova.py
 ckpt_*/*_training_table.csv
 training_table_*
-RAM_accuracy*.csv
+RAM_*.csv
+*prova*

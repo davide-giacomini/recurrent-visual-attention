@@ -65,11 +65,17 @@ class Trainer:
             self.valid_loader = data_loader[1]
             self.num_train = len(self.train_loader.sampler.indices)
             self.num_valid = len(self.valid_loader.sampler.indices)
+
+            images, labels = next(iter(self.train_loader))
         else:
             self.test_loader = data_loader
             self.num_test = len(self.test_loader.dataset)
-        self.num_classes = 10
-        self.num_channels = 1
+
+            images, labels = next(iter(self.test_loader))
+
+        self.num_channels = images.shape[1]
+        self.image_size = images.shape[-1]  # FIXME this is okay only if the images are squared and not rectangular
+        self.num_classes = 10   # FIXME this is not general. There could be some datasets with a different number of classes
 
         # training params
         self.epochs = config.epochs
@@ -78,8 +84,8 @@ class Trainer:
         self.lr = config.init_lr
 
         # misc params
+        self.ckpt_dir = config.ckpt_dir + "_" + config.dataset
         self.best = config.best
-        self.ckpt_dir = config.ckpt_dir
         self.logs_dir = config.logs_dir
         self.best_valid_acc = 0.0
         self.counter = 0
@@ -188,9 +194,9 @@ class Trainer:
         )
 
         # SAVED MAXIMUM AND MINIMUM OF PHI
-        whole_dataset = torch.empty((0, 1, 28, 28))
+        whole_dataset = torch.empty((0, self.num_channels, self.image_size, self.image_size))
         for i, (x, y) in enumerate(self.train_loader):
-            whole_dataset =torch.cat((whole_dataset, x), 0)
+            whole_dataset =torch.cat((whole_dataset, x), axis=0)
         
         utils.global_phi_max = torch.max(whole_dataset)
         utils.global_phi_min = torch.min(whole_dataset)
@@ -596,7 +602,7 @@ class Trainer:
             # duplicate M times
             x = x.repeat(self.M, 1, 1, 1)
 
-            retina = RetinaBasedMemoryInference(self.patch_size, self.num_patches, self.glimpse_scale, self.quant_bits_phi, self.config, self.model_name)
+            retina = RetinaBasedMemoryInference(self.patch_size, self.num_patches, self.glimpse_scale, self.quant_bits_phi, self.ckpt_dir, self.model_name)
 
             # initialize location vector and hidden state
             self.batch_size = x.shape[0]
@@ -607,13 +613,13 @@ class Trainer:
             for t in range(self.num_glimpses - 1):
                 closest_outputs = compute_closest_outputs(self.config, starting_cluster_dir, phi, h_t, l_t, self.device, a, b, c)   # (B,M-114)
 
-                h_t = closest_outputs[:, :64]
-                l_t = closest_outputs[:, 64:66].long()
+                h_t = closest_outputs[:, :self.config.output_size_ht]
+                l_t = closest_outputs[:, self.config.output_size_ht:self.config.output_size_ht+2].long()
                 phi = retina.foveate(x, l_t)
 
             closest_outputs = compute_closest_outputs(self.config, starting_cluster_dir, phi, h_t, l_t, self.device, a, b, c)   # (B,M-114)
 
-            pred = closest_outputs[:, 66]
+            pred = closest_outputs[:, self.config.output_size_ht+2]
             
             correct += pred.eq(y.data.view_as(pred)).cpu().sum()
 

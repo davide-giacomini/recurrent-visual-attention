@@ -129,7 +129,7 @@ def plot_images(images, gd_truth):
 
 
 def prepare_dirs(config):
-    for path in [config.data_dir, config.ckpt_dir, config.logs_dir]:
+    for path in [config.data_dir, config.ckpt_dir + "_" + config.dataset, config.logs_dir]:
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -149,9 +149,9 @@ def save_config(config):
         config.added_core_layers
     )
     filename = model_name + "_params.json"
-    param_path = os.path.join(config.ckpt_dir, filename)
+    param_path = os.path.join(config.ckpt_dir + "_" + config.dataset, filename)
 
-    print("[*] Model Checkpoint Dir: {}".format(config.ckpt_dir))
+    print("[*] Model Checkpoint Dir: {}".format(config.ckpt_dir + "_" + config.dataset))
     print("[*] Param Path: {}".format(param_path))
 
     with open(param_path, "w") as fp:
@@ -201,9 +201,9 @@ def closest_outputs_no_clustering(config, p_t: torch.Tensor, h_t: torch.Tensor, 
     data = torch.tensor(df.values, dtype=torch.float32).to(device)
     
     # Extract the first three tensors for each row into separate tensors
-    h_arr = data[:, :64]
-    l_arr = data[:, 64:66]
-    phi_arr = data[:, 66:114]
+    h_arr = data[:, :len(h_t[-1])]
+    l_arr = data[:, len(h_t[-1]):len(h_t[-1])+len(l_t[-1])]
+    phi_arr = data[:, len(h_t[-1])+len(l_t[-1]):len(h_t[-1])+len(l_t[-1])+len(p_t[-1])]
     
     # Calculate the Manhattan distance between the target values and the values in each row for each tensor
     p_diff = (p_t.unsqueeze(1) - phi_arr.unsqueeze(0)).abs().sum(dim=-1)
@@ -222,7 +222,7 @@ def closest_outputs_no_clustering(config, p_t: torch.Tensor, h_t: torch.Tensor, 
     min_index = diff.argmin(dim=-1)
     
     # Create a tensor with the 3 outputs of the closest row (`ht1`, `lt1`, and `a` if present)
-    closest_outputs = data[min_index, 114:]
+    closest_outputs = data[min_index, len(h_t[-1])+len(l_t[-1])+len(p_t[-1]):]
     
     return closest_outputs  # (B,M-114)
 
@@ -271,9 +271,9 @@ def _closest_output(path, config, p_t: torch.Tensor, h_t: torch.Tensor, l_t: tor
     data = torch.tensor(df.values).to(device)  # (N,M)
     
     # Extract the first three tensors for each row into separate tensors
-    h_arr = data[:, :64]    # (N,64)
-    l_arr = data[:, 64:66]
-    phi_arr = data[:, 66:114]
+    h_arr = data[:, :len(h_t[-1])]  # (N,64)
+    l_arr = data[:, len(h_t[-1]):len(h_t[-1])+len(l_t[-1])]
+    phi_arr = data[:, len(h_t[-1])+len(l_t[-1]):len(h_t[-1])+len(l_t[-1])+len(p_t[-1])]
     
     # Calculate the Manhattan distance between the target values and the values in each row for each tensor
     p_diff = (phi_arr - p_t.unsqueeze(0)).abs().sum(dim=-1)    # |(N,48) - (1,48)|.sum(dim=-1) = (N,) --> target vector distance from each vector of the cluster
@@ -292,7 +292,7 @@ def _closest_output(path, config, p_t: torch.Tensor, h_t: torch.Tensor, l_t: tor
     min_index = diff.argmin(dim=-1) # (N,).argmin(dim=-1) = scalar --> returns the index of the closest vector (minimum distance)
     
     # Create a tensor with the 3 outputs of the closest row (`ht1`, `lt1`, and `a` if present)
-    closest_output = data[min_index, 114:] # (N,M)[scalar, 114:] = (1, M-114) --> closest output
+    closest_output = data[min_index, len(h_t[-1])+len(l_t[-1])+len(p_t[-1]):] # (N,M)[scalar, 114:] = (1, M-114) --> closest output
     
     return closest_output
 
@@ -313,9 +313,9 @@ def search_file(config, current_dir, p_t, h_t, l_t, device, a, b, c):
         data = torch.tensor(centers_df.values).to(device)  # (K,M) --> K centroids
 
         # Extract the features from the vectors
-        h_arr = data[:, :64]
-        l_arr = data[:, 64:66]
-        phi_arr = data[:, 66:114]  # (K,M)[:48] = (K,48)
+        h_arr = data[:, :len(h_t[-1])]
+        l_arr = data[:, len(h_t[-1]):len(h_t[-1])+len(l_t[-1])]
+        phi_arr = data[:, len(h_t[-1])+len(l_t[-1]):len(h_t[-1])+len(l_t[-1])+len(p_t[-1])]  # (K,M)[:48] = (K,48)
         
         # Calculate the Manhattan distance between the target values and the values in each row for each tensor
         p_dist = (phi_arr - p_t).abs().sum(dim=-1) # |(K,48) - (K,48)|.sum(dim=-1) = (K,) --> distance from each centroid
@@ -371,12 +371,12 @@ class RetinaBasedMemoryInference:
             foveated glimpse of the image.
     """
 
-    def __init__(self, g, k, s, quant_bits_phi, config, model_name):
+    def __init__(self, g, k, s, quant_bits_phi, ckpt_dir, model_name):
         self.g = g
         self.k = k
         self.s = s
         self.quant_bits_phi = quant_bits_phi
-        self.config = config
+        self.ckpt_dir = ckpt_dir
         self.model_name = model_name
 
     def foveate(self, x, l):
@@ -409,7 +409,7 @@ class RetinaBasedMemoryInference:
         # Quantize phi
         if self.quant_bits_phi > 0:
             txt_filename = self.model_name + "_phi_max_min.txt"
-            with open(os.path.join(self.config.ckpt_dir, txt_filename), 'r') as file:
+            with open(os.path.join(self.ckpt_dir, txt_filename), 'r') as file:
                 phi_max = float(re.search(r'tensor\(([-\d\.]+)\)', file.readline()).group(1))
                 phi_min = float(re.search(r'tensor\(([-\d\.]+)\)', file.readline()).group(1))
                 

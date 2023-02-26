@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 from utils import plot_images
 
@@ -14,6 +15,7 @@ def get_train_valid_loader(
     valid_size=0.1,
     shuffle=True,
     show_sample=False,
+    chosen_dataset="MNIST",
     num_workers=4,
     pin_memory=False,
 ):
@@ -37,12 +39,23 @@ def get_train_valid_loader(
     error_msg = "[!] valid_size should be in the range [0, 1]."
     assert (valid_size >= 0) and (valid_size <= 1), error_msg
 
-    # define transforms
-    normalize = transforms.Normalize((0.1307,), (0.3081,))
-    trans = transforms.Compose([transforms.ToTensor(), normalize])
+    if chosen_dataset=="MNIST":
+        # define transforms
+        normalize = transforms.Normalize((0.1307,), (0.3081,))
+        trans = transforms.Compose([transforms.ToTensor(), normalize])
 
-    # load dataset
-    dataset = datasets.MNIST(data_dir, train=True, download=True, transform=trans)
+        # load dataset
+        dataset = datasets.MNIST(data_dir, train=True, download=True, transform=trans)
+    elif chosen_dataset=="CIFAR10":
+        # define transforms
+        normalize = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261))
+        trans = transforms.Compose([transforms.ToTensor(), normalize])
+
+        # load dataset
+        dataset = datasets.CIFAR10(data_dir, train=True, download=True, transform=trans)
+    else:
+        print("This network is not thought for dataset ", chosen_dataset)
+        sys.exit(-1)
 
     num_train = len(dataset)
     indices = list(range(num_train))

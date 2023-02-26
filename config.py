@@ -84,6 +84,12 @@ data_arg.add_argument(
     default=False,
     help="Whether to visualize a sample grid of the data",
 )
+data_arg.add_argument(
+    "--dataset",
+    type=str,
+    default="MNIST",
+    help="Which dataset",
+)
 
 
 # training params
