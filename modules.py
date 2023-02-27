@@ -188,7 +188,7 @@ class GlimpseNetwork(nn.Module):
                 phi = quantize_tensor(phi, self.quant_bits_phi)
             else:
                 txt_filename = self.model_name + "_phi_max_min.txt"
-                with open(os.path.join(self.config.ckpt_dir, txt_filename), 'r') as file:
+                with open(os.path.join(self.config.ckpt_dir + "_" + self.config.dataset, txt_filename), 'r') as file:
                     phi_max = float(re.search(r'tensor\(([-\d\.]+)\)', file.readline()).group(1))
                     phi_min = float(re.search(r'tensor\(([-\d\.]+)\)', file.readline()).group(1))
                     
