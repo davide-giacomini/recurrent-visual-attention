@@ -280,7 +280,7 @@ class CoreNetwork(nn.Module):
         h2 = self.h2h(h_t_prev)
         
         if self.layers_added == 0:
-            ht_out = F.relu(h1 + h2)
+            ht_out = h1 + h2
 
         elif self.layers_added ==1:
             ht0 = F.relu(h1 + h2)
