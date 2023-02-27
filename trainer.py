@@ -596,6 +596,8 @@ class Trainer:
         root, ext = os.path.splitext(self.config.training_table)
         starting_cluster_dir = root + "_clusters"
 
+        df = pd.read_csv(self.config.training_table)
+
         for i, (x, y) in enumerate(self.test_loader):
             x, y = x.to(self.device), y.to(self.device)
 
@@ -611,19 +613,19 @@ class Trainer:
             phi = retina.foveate(x, l_t)
             
             for t in range(self.num_glimpses - 1):
-                closest_outputs = compute_closest_outputs(self.config, starting_cluster_dir, phi, h_t, l_t, self.device, a, b, c)   # (B,M-114)
+                closest_outputs = compute_closest_outputs(df, self.config, starting_cluster_dir, phi, h_t, l_t, self.device, a, b, c)   # (B,M-114)
 
                 h_t = closest_outputs[:, :self.config.output_size_ht]
                 l_t = closest_outputs[:, self.config.output_size_ht:self.config.output_size_ht+2].long()
                 phi = retina.foveate(x, l_t)
 
-            closest_outputs = compute_closest_outputs(self.config, starting_cluster_dir, phi, h_t, l_t, self.device, a, b, c)   # (B,M-114)
+            closest_outputs = compute_closest_outputs(df, self.config, starting_cluster_dir, phi, h_t, l_t, self.device, a, b, c)   # (B,M-114)
 
             pred = closest_outputs[:, self.config.output_size_ht+2]
             
             correct += pred.eq(y.data.view_as(pred)).cpu().sum()
 
-            print(i)
+            print(i, flush=True)
 
         perc = (100.0 * correct) / (self.num_test)
         error = 100 - perc

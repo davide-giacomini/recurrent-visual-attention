@@ -121,6 +121,7 @@ drop_duplicates.py
 training_table_*.csv
 plot_prova.py
 ckpt_*/*_training_table.csv
-training_table_*
+*_training_table_*.csv
+*training_table*/
 RAM_*.csv
 *prova*

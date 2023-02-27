@@ -182,20 +182,17 @@ def silent_file_remove(filename):
         if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
             raise # re-raise exception if a different error occurred
 
-def compute_closest_outputs(config, starting_dir, p_t, h_t, l_t, device, a, b, c):
+def compute_closest_outputs(df, config, starting_dir, p_t, h_t, l_t, device, a, b, c):
     if config.clustering:
         return closest_outputs_clustering(config, starting_dir, p_t, h_t, l_t, device, a, b, c)
     else:
-        return closest_outputs_no_clustering(config, p_t, h_t, l_t, device, a, b, c)
+        return closest_outputs_no_clustering(df, config, p_t, h_t, l_t, device, a, b, c)
 
-def closest_outputs_no_clustering(config, p_t: torch.Tensor, h_t: torch.Tensor, l_t: torch.Tensor, device, a: float, b: float, c: float) -> torch.Tensor:
+def closest_outputs_no_clustering(df, config, p_t: torch.Tensor, h_t: torch.Tensor, l_t: torch.Tensor, device, a: float, b: float, c: float) -> torch.Tensor:
     # Check if the weights for the Euclidean distance make sense
     if a+b+c <= 0:
         print("Error: The weights a, b, and c must sum up to a number greater than zero")
         sys.exit(1)
-
-    # Load the data from the csv file into a pandas dataframe
-    df = pd.read_csv(config.training_table)
     
     # Convert the dataframe to a tensor
     data = torch.tensor(df.values, dtype=torch.float32).to(device)
