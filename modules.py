@@ -268,8 +268,8 @@ class CoreNetwork(nn.Module):
         elif self.layers_added == 2:
             self.i2h = nn.Linear(input_size, hidden_size)
             self.h2h = nn.Linear(output_size_ht, hidden_size)
-            self.fc1 = nn.Linear(hidden_size, hidden_size/2)
-            self.fc2 = nn.Linear(hidden_size/2, output_size_ht)
+            self.fc1 = nn.Linear(hidden_size, hidden_size//2)
+            self.fc2 = nn.Linear(hidden_size//2, output_size_ht)
         else:
             print("Error, layers added can be only 0,1 or 2")
             sys.exit(-1)
