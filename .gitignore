@@ -123,5 +123,5 @@ plot_prova.py
 ckpt_*/*_training_table.csv
 *_training_table_*.csv
 *training_table*/
-RAM_*.csv
+# RAM_*.csv
 *prova*
