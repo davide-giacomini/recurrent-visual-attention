@@ -89,12 +89,13 @@ def generate_plot_patch(df, start_rows, cols, legends, x_label, x_ticks, plt_tit
     plt.xlabel(x_label, font=font)
     plt.xticks(x_ticks, font=font)
     plt.ylabel('Accuracy', font=font)
-    yticks = list(range(70, 101, 3))
+    plt.ylim((64, 101))
+    yticks = list(range(65, 101, 5))
     plt.yticks(yticks, labels=[str(num) + "%" for num in yticks], font=font)
     plt.grid(True, linewidth=0.5, color='gray', linestyle=':')
     plt.legend(fontsize=12)
 
-    plt.title(plt_title, font=font)
+    # plt.title(plt_title, font=font)
 
 
     # SAVE GRAPH IN PDF
@@ -120,12 +121,13 @@ def generate_plot_quant(df, start_rows, cols, legends, x_label, x_ticks, plt_tit
     tick_labels[-1] = 'inf'  # change the last tick label to 'inf'
     plt.xticks(x_ticks, tick_labels, font=font)
     plt.ylabel('Accuracy', font=font)
-    yticks = list(range(73, 101, 3))
+    plt.ylim((81, 101))
+    yticks = list(range(82, 101, 2))
     plt.yticks(yticks, labels=[str(num) + "%" for num in yticks], font=font)
     plt.grid(True, linewidth=0.5, color='gray', linestyle=':')
     plt.legend(fontsize=12, loc="lower right")
 
-    plt.title(plt_title, font=font)
+    # plt.title(plt_title, font=font)
 
     save_graph('quantization')
 
@@ -140,8 +142,9 @@ def generate_plot_size(df, start_rows, cols, legends, x_labels, x_ticks, plt_tit
     fig, ax0 = plt.subplots()
     ax0.set_xlabel(x_labels[0], font=font)
     ax0.set_xticks(x_ticks[0], font=font)
-    ax0.set_ylabel('Accuracy [%]', font=font)
-    yticks = list(range(60, 101, 4))
+    ax0.set_ylabel('Accuracy', font=font)
+    ax0.set_ylim((65, 101))
+    yticks = list(range(68, 101, 4))
     ax0.set_yticks(yticks, labels=[str(num) + "%" for num in yticks], font=font)
     ax0.grid(True, linewidth=0.5, color='gray', linestyle=':')
 
@@ -165,7 +168,7 @@ def generate_plot_size(df, start_rows, cols, legends, x_labels, x_ticks, plt_tit
     labs = [l.get_label() for l in lns]
     ax0.legend(lns, labs, loc="lower right")
 
-    plt.title(plt_title, font=font)
+    # plt.title(plt_title, font=font)
 
     save_graph('model_size')
 
@@ -179,14 +182,15 @@ def generate_plot_datasets(df, start_rows, legends, x_label, x_ticks, plt_title)
     for i, rows_bunch in enumerate(rows_bunches):
         plt.plot([0,1,2], rows_bunch['acc'], c=colors[i], label = legends[i], linewidth = 1, linestyle='-', marker='.')
 
-    plt.xlabel(x_label, font=font)
+    # plt.xlabel(x_label, font=font)
     tick_labels = ['MNIST', 'FashionMNIST', 'CIFAR10']
     plt.xticks(x_ticks, tick_labels, font=font)
     plt.ylabel('Accuracy', font=font)
-    yticks = list(range(35, 101, 5))
+    plt.ylim((28, 102))
+    yticks = list(range(30, 101, 10))
     plt.yticks(yticks, labels=[str(num) + "%" for num in yticks], font=font)
     plt.grid(True, linewidth=0.5, color='gray', linestyle=':')
-    plt.legend(fontsize=12)
+    plt.legend(fontsize=12, loc='lower left')
 
     plt.title(plt_title, font=font)
 
@@ -197,7 +201,7 @@ def generate_plot_datasets(df, start_rows, legends, x_label, x_ticks, plt_title)
 
 df = parse_csv()
 
-fig = plt.figure(figsize=(12, 10))
+# fig = plt.figure(figsize=(12, 10))
 
 plt = generate_plot_patch(df=df, 
                           start_rows=[7*1,7*2,7*3,7*4],
@@ -210,7 +214,7 @@ plt = generate_plot_patch(df=df,
 # plt.show()
 plt.clf()
 
-fig = plt.figure(figsize=(12, 10))
+# fig = plt.figure(figsize=(12, 10))
 
 plt = generate_plot_quant(df=df, 
                           start_rows=[7*0,7*5], 
@@ -223,20 +227,20 @@ plt = generate_plot_quant(df=df,
 # plt.show()
 plt.clf()
 
-fig = plt.figure(figsize=(12, 10))
+# fig = plt.figure(figsize=(12, 10))
 
 plt = generate_plot_size(df=df, 
                           start_rows=[7*6,7*7], 
                           cols=['size_ht','added_layers'],
                           legends=['Hidden state vector length', 'Number of layers added to the original network'],
-                          x_labels=['size_ht', 'added_layers'], 
+                          x_labels=['Hidden state vector length', 'Added layers'], 
                           x_ticks=[list(range(16,130,16)), list(range(0,3,1))], 
                           plt_title='Accuracy with differences in the network structure'
                           )
 # plt.show()
 plt.clf()
 
-fig = plt.figure(figsize=(12, 10))
+# fig = plt.figure(figsize=(12, 10))
 
 plt = generate_plot_datasets(df=df, 
                           start_rows=[7*7 +3*1,7*7 +3*2], 

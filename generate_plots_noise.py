@@ -61,7 +61,7 @@ def parse_csv():
 
 def generate_plot(df, start_rows, cols, legends, x_label, x_ticks, plt_title):
 
-    rows_subsets = [df.iloc[start_row : -1] for start_row in start_rows]
+    rows_subsets = [df.iloc[start_row : start_row+23] for start_row in start_rows]
 
     colors = ['r', 'b', 'g', 'y']
 
@@ -71,14 +71,15 @@ def generate_plot(df, start_rows, cols, legends, x_label, x_ticks, plt_title):
 
     plt.xlabel(x_label, font=font)
     plt.xticks(x_ticks, font=font)
+    plt.xlim
     plt.ylabel('Accuracy', font=font)
-    plt.ylim(65.0, 100.0)
-    yticks = list(range(65, 100, 5))
+    plt.ylim(65.0, 91.0)
+    yticks = list(range(66, 91, 3))
     plt.yticks(yticks, labels=[str(num) + "%" for num in yticks], font=font)
     plt.grid(True, linewidth=0.5, color='gray', linestyle=':')
     plt.legend(fontsize=12)
 
-    plt.title(plt_title, font=font_title)
+    # plt.title(plt_title, font=font_title)
 
     save_graph('noises')
 
@@ -87,13 +88,13 @@ def generate_plot(df, start_rows, cols, legends, x_label, x_ticks, plt_title):
 
 df = parse_csv()
 
-fig = plt.figure(figsize=(12, 10))
+# fig = plt.figure(figsize=(12, 10))
 
 plt = generate_plot(df=df, 
                           start_rows=[0, 0],
                           cols=['acc_50_bo', 'acc_100_bo'],
                           legends=['50% of trained table', '100% of trained table'],
-                          x_label='Standard deviation of Gaussian noise',
+                          x_label='Standard deviation',
                           x_ticks=[0.0,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0], 
                           plt_title='Accuracy with Gaussian noise applied to distance metric'
                           )

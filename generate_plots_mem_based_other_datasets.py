@@ -30,7 +30,7 @@ axs[1].yaxis.set_label_position("right")
 axs[1].yaxis.set_ticks_position('right')
 
 # Add a common title for the figure
-fig.suptitle('Comparison of drop for CIFAR10, FashionMNIST and MNIST')
+# fig.suptitle('Comparison of drop for CIFAR10, FashionMNIST and MNIST')
 
 dir_name = 'graphs'
 graph_name = 'histogram'

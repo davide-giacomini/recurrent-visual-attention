@@ -70,12 +70,33 @@ def generate_plot(df, start_rows, cols, legends, x_label, x_ticks, plt_title):
     plt.xlabel(x_label, font=font)
     plt.xticks(x_ticks, labels=[str(num) + "%" for num in x_ticks], font=font)
     plt.ylabel('Accuracy', font=font)
-    yticks = list(range(72, 97, 4))
+    plt.ylim((75.0, 93.0))
+    yticks = list(range(76, 93, 2))
     plt.yticks(yticks, labels=[str(num) + "%" for num in yticks], font=font)
     plt.grid(True, linewidth=0.5, color='gray', linestyle=':')
-    plt.legend(fontsize=12)
+    plt.legend(fontsize=12, loc='lower right')
 
-    plt.title(plt_title, font=font)
+    # plt.title(plt_title, font=font)
+
+    # Find the index of the x value you want to mark
+    x_value = 50
+    x_index = x_ticks.index(x_value)
+    # Get the corresponding y values for the two lines
+    y0_value = rows_subsets[0].reset_index(drop=True)['acc'][x_index]
+    y1_value = rows_subsets[1].reset_index(drop=True)['acc'][x_index]
+
+    # Plot the double-pointing arrow
+    arrow_length = abs(y0_value - y1_value)  # adjust arrow length as needed
+    arrow_style = '<->'  # double-pointing arrow style
+    arrow_color = 'black'
+    arrow_text = '{:.1f}'.format(arrow_length) + '%' # label for arrow, showing distance
+
+    plt.annotate("", xy=(x_value, y0_value + arrow_length*0.1), xytext=((x_value), y1_value - arrow_length*0.1),
+             arrowprops=dict(arrowstyle=arrow_style, color=arrow_color, shrinkA=0, shrinkB=0, lw=1),
+             fontsize=12)
+    
+    plt.annotate(arrow_text, xy=(x_value, (y0_value + y1_value) / 2), xytext=(10, 0),
+             textcoords='offset points', fontsize=12)
 
     save_graph('bo')
 
@@ -85,7 +106,7 @@ def generate_plot(df, start_rows, cols, legends, x_label, x_ticks, plt_title):
 
 df = parse_csv()
 
-fig = plt.figure(figsize=(12, 10))
+# fig = plt.figure(figsize=(12, 10))
 
 plt = generate_plot(df=df, 
                           start_rows=[6*0,6*1],
