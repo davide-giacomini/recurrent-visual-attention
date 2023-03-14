@@ -38,12 +38,16 @@ class Retina:
             foveated glimpse of the image.
     """
 
-    def __init__(self, g, k, s):
+    def __init__(self, g, k, s, quant_bits_phi, ckpt_dir, model_name, is_train):
         self.g = g
         self.k = k
         self.s = s
+        self.quant_bits_phi = quant_bits_phi
+        self.ckpt_dir = ckpt_dir
+        self.model_name = model_name
+        self.is_train = is_train
 
-    def foveate(self, x, l):
+    def foveate(self, x, l, location_normalized=False):
         """Extract `k` square patches of size `g`, centered
         at location `l`. The initial patch is a square of
         size `g`, and each subsequent patch is a square
@@ -58,7 +62,7 @@ class Retina:
 
         # extract k patches of increasing size
         for i in range(self.k):
-            phi.append(self.extract_patch(x, l, size))
+            phi.append(self.extract_patch(x, l, size, location_normalized))
             size = int(self.s * size)
 
         # resize the patches to squares of size g
@@ -70,9 +74,22 @@ class Retina:
         phi = torch.cat(phi, 1)
         phi = phi.view(phi.shape[0], -1)    #phi becomes a tensor of B batches with channels*size*size elements
 
+        # Quantize phi
+        if self.quant_bits_phi > 0:
+            if self.is_train:
+                phi = quantize_tensor(phi, self.quant_bits_phi)
+            else:
+                txt_filename = self.model_name + "_phi_max_min.txt"
+                with open(os.path.join(self.config.ckpt_dir + "_" + self.config.dataset, txt_filename), 'r') as file:
+                    phi_max = float(re.search(r'tensor\(([-\d\.]+)\)', file.readline()).group(1))
+                    phi_min = float(re.search(r'tensor\(([-\d\.]+)\)', file.readline()).group(1))
+                    
+                phi = torch.clamp(phi, min=phi_min, max=phi_max)
+                phi = quantize_tensor(phi, self.quant_bits_phi, min_t=phi_min, max_t=phi_max)
+
         return phi
 
-    def extract_patch(self, x, l, size):
+    def extract_patch(self, x, l, size, location_normalized):
         """Extract a single patch for each image in `x`.
 
         Args:
@@ -86,7 +103,7 @@ class Retina:
         """
         B, C, H, W = x.shape
 
-        start = denormalize(H, l)
+        start = l if location_normalized else denormalize(H, l)
         end = start + size
 
         # pad with zeros
@@ -162,7 +179,7 @@ class GlimpseNetwork(nn.Module):
         self.config = config
         self.model_name = model_name
 
-        self.retina = Retina(g, k, s)
+        self.retina = Retina(g, k, s, quant_bits_phi, config.ckpt_dir, model_name, self.config.is_train)
 
         # glimpse layer
         D_in = k * g * g * c    # Input dimension of first fc1: it's the one that in the paper corresponds to theta_g_0. This fc just takes as input a vector of patches, hence its dimension is k*g*g*c (c=1 for MNIST). i.e., num_patches*patch_size*patch_size*channels
@@ -181,19 +198,6 @@ class GlimpseNetwork(nn.Module):
 
         # flatten location vector
         l_t_prev = l_t_prev.view(l_t_prev.size(0), -1)
-
-        # Quantize phi
-        if self.quant_bits_phi > 0:
-            if self.config.is_train:
-                phi = quantize_tensor(phi, self.quant_bits_phi)
-            else:
-                txt_filename = self.model_name + "_phi_max_min.txt"
-                with open(os.path.join(self.config.ckpt_dir + "_" + self.config.dataset, txt_filename), 'r') as file:
-                    phi_max = float(re.search(r'tensor\(([-\d\.]+)\)', file.readline()).group(1))
-                    phi_min = float(re.search(r'tensor\(([-\d\.]+)\)', file.readline()).group(1))
-                    
-                phi = torch.clamp(phi, min=phi_min, max=phi_max)
-                phi = quantize_tensor(phi, self.quant_bits_phi, min_t=phi_min, max_t=phi_max)
 
         # feed phi and l to respective fc layers
         phi_out = F.relu(self.fc1(phi))

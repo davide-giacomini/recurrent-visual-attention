@@ -98,9 +98,6 @@ train_arg.add_argument(
     "--is_train", type=str2bool, default=True, help="Whether to train or test the model"
 )
 train_arg.add_argument(
-    "--is_train_table", type=str2bool, default=False, help="Whether to prepare the training table or only test the model"
-)
-train_arg.add_argument(
     "--momentum", type=float, default=0.5, help="Nesterov momentum value"
 )
 train_arg.add_argument(
@@ -182,6 +179,9 @@ train_arg.add_argument(
     "--mem_based_inference", type=str2bool, default=False, help="Test with memory based inference"
 )
 misc_arg.add_argument(
+    "--clustered_tree_path", type=str, default="tree.pickle", help="Clustered tree to use for look-up only inference"
+)
+misc_arg.add_argument(
     "--training_table", type=str, default="training_table.csv", help="Training data to take into consideration"
 )
 train_arg.add_argument(
@@ -198,6 +198,9 @@ train_arg.add_argument(
 )
 train_arg.add_argument(
     "--c", type=float, default=1.0, help="Weight c of distance metric"
+)
+train_arg.add_argument(
+    "--is_train_table", type=str2bool, default=False, help="Whether to prepare the training table or only test the model"
 )
 
 # add noise to the memory-based inference to emulate hardware behaviour

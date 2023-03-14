@@ -1,6 +1,7 @@
 import sys
 from bayes_opt import BayesianOptimization
 import torch
+from LOI import LookupOnlyInference
 
 import utils
 import data_loader
@@ -12,9 +13,6 @@ from config import get_config
 def main(config):
     utils.prepare_dirs(config)
 
-    if config.is_train_table and config.mem_based_inference:
-        print("Error: You can't have is_train_table and mem_based_inference both True")
-        sys.exit(1)
 
     # ensure reproducibility
     torch.manual_seed(config.random_seed)
@@ -45,6 +43,21 @@ def main(config):
             batch_size=config.batch_size,
             **kwargs,
         )
+
+    if config.mem_based_inference:
+        if config.is_train:
+            print("Error: config.is_train==True -- If the look-up only flag is active, the model cannot be in train mode.")
+            sys.exit(1)
+        
+        if config.is_train_table:
+            pass #TODO complete
+
+        dloader = ram_data_loader.get_test_loader(
+            batch_size=config.batch_size,
+            **kwargs,
+        )
+
+        lookup_inference = LookupOnlyInference(config, dloader)
 
     trainer = Trainer(config, dloader)
 

@@ -608,9 +608,9 @@ class Trainer:
 
             # initialize location vector and hidden state
             self.batch_size = x.shape[0]
-            h_t, l_t = self.reset()
-            l_t = denormalize(x.shape[-1], l_t)
-            phi = retina.foveate(x, l_t)
+            h_t, l_t = self.reset() # (B,64)
+            l_t = denormalize(x.shape[-1], l_t) # (B,2)
+            phi = retina.foveate(x, l_t) # (B,48)
             
             for t in range(self.num_glimpses - 1):
                 closest_outputs = compute_closest_outputs(df, self.config, starting_cluster_dir, phi, h_t, l_t, self.device, a, b, c)   # (B,M-114)
