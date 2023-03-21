@@ -17,7 +17,8 @@ args = parser.parse_args()
 # Get the file path from the arguments
 file_path = args.file
 
-font = {'family' : 'serif','size' : 14}
+font = {'family' : 'serif','size' : 21}
+legend_fontisze = 18
 colors = ['#FF0000', '#0000FF', '#00FF00', '#800080']
 
 def save_graph(graph_name):
@@ -93,13 +94,13 @@ def generate_plot_patch(df, start_rows, cols, legends, x_label, x_ticks, plt_tit
     yticks = list(range(65, 101, 5))
     plt.yticks(yticks, labels=[str(num) + "%" for num in yticks], font=font)
     plt.grid(True, linewidth=0.5, color='gray', linestyle=':')
-    plt.legend(fontsize=12)
+    plt.legend(fontsize=legend_fontisze)
 
     # plt.title(plt_title, font=font)
 
 
     # SAVE GRAPH IN PDF
-    save_graph('patch')
+    save_graph('patch.pdf')
 
     return plt
 
@@ -125,11 +126,11 @@ def generate_plot_quant(df, start_rows, cols, legends, x_label, x_ticks, plt_tit
     yticks = list(range(82, 101, 2))
     plt.yticks(yticks, labels=[str(num) + "%" for num in yticks], font=font)
     plt.grid(True, linewidth=0.5, color='gray', linestyle=':')
-    plt.legend(fontsize=12, loc="lower right")
+    plt.legend(fontsize=legend_fontisze, loc="lower right")
 
     # plt.title(plt_title, font=font)
 
-    save_graph('quantization')
+    save_graph('quantization.pdf')
 
     return plt
 
@@ -160,17 +161,21 @@ def generate_plot_size(df, start_rows, cols, legends, x_labels, x_ticks, plt_tit
     ax1.xaxis.set_label_position('top')
     ax1.grid(True, linewidth=0.5, color='gray', linestyle=':')
 
+    # We change the fontsize of minor ticks label 
+    ax0.tick_params(axis='both', which='major', labelsize=21)
+    ax1.tick_params(axis='both', which='major', labelsize=21)
+
     # plot the second line chart on the second axis object
     lns1 = ax1.plot(rows_subset1[cols[1]], rows_subset1['acc'], c=colors[1], label = legends[1], linewidth = 1, linestyle='-', marker='.')
     
     # added these three lines
     lns = lns0+lns1
     labs = [l.get_label() for l in lns]
-    ax0.legend(lns, labs, loc="lower right")
+    ax0.legend(lns, labs, loc="lower right", fontsize=legend_fontisze)
 
     # plt.title(plt_title, font=font)
 
-    save_graph('model_size')
+    save_graph('model_size.pdf')
 
     return plt
 
@@ -190,11 +195,11 @@ def generate_plot_datasets(df, start_rows, legends, x_label, x_ticks, plt_title)
     yticks = list(range(30, 101, 10))
     plt.yticks(yticks, labels=[str(num) + "%" for num in yticks], font=font)
     plt.grid(True, linewidth=0.5, color='gray', linestyle=':')
-    plt.legend(fontsize=12, loc='lower left')
+    plt.legend(fontsize=legend_fontisze, loc='lower left')
 
     plt.title(plt_title, font=font)
 
-    save_graph('datasets')
+    save_graph('datasets.pdf')
 
     return plt
 
@@ -219,7 +224,7 @@ plt.clf()
 plt = generate_plot_quant(df=df, 
                           start_rows=[7*0,7*5], 
                           cols=['ht_test','phi_train'],
-                          legends=['Hidden state vector quantization', 'Patch vector quantization'],
+                          legends=['Hidden state vector', 'Patch vector'],
                           x_label='Quantization levels', 
                           x_ticks=list(range(1,10,1)), 
                           plt_title='Accuracy with differences in quantization levels'
@@ -232,7 +237,7 @@ plt.clf()
 plt = generate_plot_size(df=df, 
                           start_rows=[7*6,7*7], 
                           cols=['size_ht','added_layers'],
-                          legends=['Hidden state vector length', 'Number of layers added to the original network'],
+                          legends=['Hidden state vector length', 'Number of layers added'],
                           x_labels=['Hidden state vector length', 'Added layers'], 
                           x_ticks=[list(range(16,130,16)), list(range(0,3,1))], 
                           plt_title='Accuracy with differences in the network structure'
@@ -247,7 +252,7 @@ plt = generate_plot_datasets(df=df,
                           legends=['Datasets quantized', 'Datasets non quantized'],
                           x_label='Datasets', 
                           x_ticks=list(range(0,3,1)), 
-                          plt_title='Baseline accuracy for different datasets'
+                          plt_title='Baseline accuracy'
                           )
 # plt.show()
 plt.clf()

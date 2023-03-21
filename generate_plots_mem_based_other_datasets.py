@@ -33,7 +33,7 @@ axs[1].yaxis.set_ticks_position('right')
 # fig.suptitle('Comparison of drop for CIFAR10, FashionMNIST and MNIST')
 
 dir_name = 'graphs'
-graph_name = 'histogram'
+graph_name = 'histogram.pdf'
 if not os.path.exists(dir_name):
     os.makedirs(dir_name)
 

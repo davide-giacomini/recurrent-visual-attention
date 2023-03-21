@@ -1,3 +1,16 @@
+class DistanceMetric:
+    """Distance metric computed for look-up inference
+    """
+
+    def __init__(self):
+        """Distance metric computed for look-up inference
+        """
+        
+    def compute_no_clustering(self):
+        """
+        """
+        pass
+
 def compute_closest_outputs(df, config, starting_dir, p_t, h_t, l_t, device, a, b, c):
     if config.clustering:
         return closest_outputs_clustering(config, starting_dir, p_t, h_t, l_t, device, a, b, c)

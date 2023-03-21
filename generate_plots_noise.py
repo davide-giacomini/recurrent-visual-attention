@@ -18,7 +18,7 @@ args = parser.parse_args()
 file_path = args.file
 
 font = {'family' : 'serif','size' : 14}
-font_title = {'family' : 'serif','size' : 16}
+legend_fontisze = 12
 
 def save_graph(graph_name):
     # SAVE GRAPH IN PNG
@@ -77,11 +77,11 @@ def generate_plot(df, start_rows, cols, legends, x_label, x_ticks, plt_title):
     yticks = list(range(66, 91, 3))
     plt.yticks(yticks, labels=[str(num) + "%" for num in yticks], font=font)
     plt.grid(True, linewidth=0.5, color='gray', linestyle=':')
-    plt.legend(fontsize=12)
+    plt.legend(fontsize=legend_fontisze)
 
     # plt.title(plt_title, font=font_title)
 
-    save_graph('noises')
+    save_graph('noises.pdf')
 
     return plt
 

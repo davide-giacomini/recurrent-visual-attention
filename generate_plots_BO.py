@@ -68,7 +68,7 @@ def generate_plot(df, start_rows, cols, legends, x_label, x_ticks, plt_title):
         plt.plot(rows_subset[cols[i]], rows_subset['acc'], c=colors[i], label = legends[i], linewidth = 1, linestyle='-', marker='.')
 
     plt.xlabel(x_label, font=font)
-    plt.xticks(x_ticks, labels=[str(num) + "%" for num in x_ticks], font=font)
+    plt.xticks(x_ticks, labels=[str( round(8.87*(num/100), 2) ) for num in x_ticks], font=font)
     plt.ylabel('Accuracy', font=font)
     plt.ylim((75.0, 93.0))
     yticks = list(range(76, 93, 2))
@@ -98,7 +98,7 @@ def generate_plot(df, start_rows, cols, legends, x_label, x_ticks, plt_title):
     plt.annotate(arrow_text, xy=(x_value, (y0_value + y1_value) / 2), xytext=(10, 0),
              textcoords='offset points', fontsize=12)
 
-    save_graph('bo')
+    save_graph('bo.pdf')
 
     return plt
 
@@ -112,7 +112,7 @@ plt = generate_plot(df=df,
                           start_rows=[6*0,6*1],
                           cols=['training_data', 'training_data'],
                           legends=['Function non optimized', 'Function optimized with BO'],
-                          x_label='Percentage of trained table',
+                          x_label='Table size [MB]',
                           x_ticks=[15,30,50,70,90,100], 
                           plt_title='Distance metric optimization through Bayesian Optimization'
                           )
